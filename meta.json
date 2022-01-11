@@ -1,0 +1,18 @@
+{
+    "workflow_environment":"SimStack",
+    "title": "DFT-VASP-Advanced",
+    "description": "A WaNo for running periodic DFT calculations with VASP",
+    "authors": [
+        "Tobias Schlöder tobias.schloeder@kit.edu"
+    ],
+    "version": "1.0",
+    "logo": "DFT-VASP-Advanced.png",
+    "release": {
+        "latest_release_date": "2022-01-11",
+        "latest_release_tag": "1.0"
+    },
+    "keywords": [
+        "DFT",
+       	"VASP"
+    ]
+}

@@ -1,0 +1,253 @@
+<WaNoTemplate>
+    
+    <WaNoMeta>
+ 		<Author>
+			<Name> Tobias Schlöder</Name>
+  			<Email>tobias.schloeder@kit.edu</Email>
+ 		</Author>
+
+		<Description>
+			This WaNo performs a periodic DFT calculation using VASP. A suitable vasp.config file needs to be
+			placed in ${NANOMATCH}/${NANOVER}/configs on each cluster
+ 		</Description>
+
+		<Keyword>DFT</Keyword>
+		<Keyword>VASP</Keyword>
+	</WaNoMeta>
+	
+	<WaNoRoot name='VASP settings'>
+		<WaNoDropDown name='VASP version'>
+			<Entry id='0'>5.4.4</Entry>
+			<Entry id='1' chosen='True'>6.2.0</Entry>
+		</WaNoDropDown>
+		<WaNoDropDown name="Type of calculation">
+			<Entry id="0" chosen='True'>Single point calculation</Entry>
+			<Entry id="1">Structure optimisation</Entry>
+			<Entry id="2">NEB calculation</Entry>
+			<Entry id="3">MD calculation</Entry>
+		</WaNoDropDown>
+		<WaNoDropDown name='SP calculation' visibility_condition='"%s" == "Single point calculation"' visibility_var_path='Type of calculation'>
+			<Entry id='0' chosen='True'>Energy calculation</Entry>
+			<Entry id='1'>DOS calculation</Entry>
+			<Entry id='2'>Band structure calculation</Entry>
+		</WaNoDropDown>
+		<WaNoDictBox name='Structure file' visibility_condition='"%s" != "NEB calculation"' visibility_var_path='Type of calculation'>
+			<WaNoFile name='POSCAR' logical_filename='POSCAR'>POSCAR</WaNoFile>
+		</WaNoDictBox>
+		<WaNoDictBox name='Plane waves file' >
+			<WaNoBool name='Auto-generate POTCAR'>True</WaNoBool>
+			<WaNoFile name='POTCAR' logical_filename='POTCAR' visibility_condition='%s == False' visibility_var_path='Plane waves file.Auto-generate POTCAR'>POTCAR</WaNoFile>
+			<WaNoDropDown name='PAW type' visibility_condition='%s == True' visibility_var_path='Plane waves file.Auto-generate POTCAR'>
+				<Entry id='0' chosen='True'>Standard</Entry>
+				<Entry id='1'>Include semi-core p-states</Entry>
+				<Entry id='2'>Include semi-core sp-states</Entry>
+			</WaNoDropDown>
+		</WaNoDictBox>
+		<WaNoDictBox name='K-sampling' visibility_condition='"%s" != "Band structure calculation"' visibility_var_path='SP calculation'>
+			<WaNoDropDown name='KPOINTS type'>
+				<Entry id='0'>Gamma point only</Entry>
+				<Entry id='1' chosen='True'>Set minimum k-spacing</Entry>
+				<Entry id='2'>Set mesh manually</Entry>
+				<Entry id='3'>Load predefined KPOINTS file</Entry>
+			</WaNoDropDown>
+			<WaNoFloat name='K-resolution [1/Å]' visibility_condition='"%s" == "Set minimum k-spacing"' visibility_var_path='K-sampling.KPOINTS type'>30.0</WaNoFloat>
+			<WaNoMatrixFloat name='Mesh' rows='1' cols='3' col_header='N_a;N_b;N_c' visibility_condition='"%s" == "Set mesh manually"' visibility_var_path='K-sampling.KPOINTS type'>[[1,1,1]]</WaNoMatrixFloat>
+			<WaNoBool name='Gamma centering' visibility_condition='"%s" != "Load predefined KPOINTS file"' visibility_var_path='K-sampling.KPOINTS type'>True</WaNoBool>
+			<WaNoFile name='KPOINTS file' logical_filename='KPOINTS_regular' visibility_condition='"%s" == "Load predefined KPOINTS file"' visibility_var_path='K-sampling.KPOINTS type'>KPOINTS</WaNoFile>
+		</WaNoDictBox>
+		<WaNoDictBox name='Electronic structure settings'>
+			<WaNoDropDown name='Type of functional'>
+				<Entry id='0' chosen='True'>Pure</Entry>
+				<Entry id='1'>Hybrid</Entry>
+				<Entry id='2'>VdW</Entry>
+			</WaNoDropDown>
+			<WaNoDropDown name='Functional' visibility_condition='"%s" == "Pure"' visibility_var_path='Electronic structure settings.Type of functional'>
+				<Entry id='0'>LDA</Entry>
+				<Entry id='1'>PW91</Entry>
+				<Entry id='2' chosen='True'>PBE</Entry>
+				<Entry id='3'>RPBE</Entry>
+				<Entry id='4'>revPBE</Entry>
+				<Entry id='5'>PBEsol</Entry>
+				<Entry id='6'>VWN</Entry>
+			</WaNoDropDown>
+			<WaNoDropDown name='Hybrid functional' visibility_condition='"%s" == "Hybrid"' visibility_var_path='Electronic structure settings.Type of functional'>
+				<Entry id='0'>PBE0</Entry>
+				<Entry id='1'>B3LYP</Entry>
+				<Entry id='2'>HSE03</Entry>
+				<Entry id='3' chosen='True'>HSE06</Entry>
+			</WaNoDropDown>
+			<WaNoDropDown name='VdW functional' visibility_condition='"%s" == "VdW"' visibility_var_path='Electronic structure settings.Type of functional'>
+				<Entry id='0' chosen='True'>optPBE-vdW</Entry>
+				<Entry id='1'>optB88-vdRW</Entry>
+				<Entry id='2'>optB86b-vdW</Entry>
+				<Entry id='3'>vdW-DF2</Entry>
+				<Entry id='4'>rev-vdW-DF2</Entry>
+				<Entry id='5'>SCAN+rVV10</Entry>
+			</WaNoDropDown>
+			<WaNoFile name='VdW Kernel file' logical_filename="vdw_kernel.bindat" visibility_condition='"%s" == "VdW"' visibility_var_path='Electronic structure settings.Type of functional'>vdw_kernel.bindat</WaNoFile>
+			<WaNoBool name='Use vdW correction' visibility_condition='"%s" != "VdW"' visibility_var_path='Electronic structure settings.Type of functional'>False</WaNoBool>
+			<WaNoDropDown name='Type of correction' visibility_condition='%s == True' visibility_var_path='Electronic structure settings.Use vdW correction'>
+				<Entry id='0'>D2</Entry>
+				<Entry id='1'>D3</Entry>
+				<Entry id='2' chosen='True'>D3BJ</Entry>
+				<Entry id='3'>TS</Entry>
+				<Entry id='4'>TS-SCS</Entry>
+				<Entry id='5'>TS-HP</Entry>
+				<Entry id='6'>MBD@rsSCS</Entry>
+				<Entry id='7'>dDsC</Entry>
+			</WaNoDropDown>
+			<WaNoFloat name='Energy cutoff [eV]'>400.000</WaNoFloat>
+			<WaNoDropDown name='SCF algorithm'>
+				<Entry id='0'>Normal</Entry>
+				<Entry id='1' chosen='True'>Fast</Entry>
+				<Entry id='2'>VeryFast</Entry>
+				<Entry id='3'>All</Entry>
+			</WaNoDropDown>
+			<WaNoDropDown name='LREAL'>
+				<Entry id='0' chosen='True'>Auto</Entry>
+				<Entry id='1'>False</Entry>
+				<Entry id='2'>True</Entry>
+				<Entry id='3'>On</Entry>
+			</WaNoDropDown>
+			<WaNoDropDown name='Precision mode'>
+				<Entry id='0'>Low</Entry>
+				<Entry id='1'>Medium</Entry>
+				<Entry id='2'>High</Entry>
+				<Entry id='3'>Normal</Entry>
+				<Entry id='4'>Single</Entry>
+				<Entry id='5' chosen='True'>Accurate</Entry>
+			</WaNoDropDown>
+			<WaNoInt name='Minimum number of SCF cycles'>4</WaNoInt>
+			<WaNoInt name='Maximum number of SCF cycles'>100</WaNoInt>
+			<WaNoFloat name='EDIFF'>0.00001</WaNoFloat>
+			<WaNoInt name='ISPIN'>1</WaNoInt>
+			<WaNoBool name='SOC'>False</WaNoBool>
+			<WaNoInt name='ISMEAR'>0</WaNoInt>
+			<WaNoFloat name='SIGMA'>0.2</WaNoFloat>
+			<WaNoBool name='Dipole correction to forces/potentials'>False</WaNoBool>
+			<WaNoBool name='Dipole correction to energy'>False</WaNoBool>
+			<WaNoDropDown name='Direction' visibility_condition='%s == True' visibility_var_path='Electronic structure settings.Dipole correction to energy'>
+				<Entry id='0'>a</Entry>
+				<Entry id='1'>b</Entry>
+				<Entry id='2'>c</Entry>
+				<Entry id='3'>all</Entry>
+			</WaNoDropDown>
+			<WaNoBool name='Use old WAVECAR'>False</WaNoBool>
+			<WaNoFile name='WAVECAR' logical_filename='WAVECAR' visibility_condition='%s == True' visibility_var_path='Electronic structure settings.Use old WAVECAR'>WAVECAR</WaNoFile>
+		</WaNoDictBox>
+		<WaNoDictBox name = 'DOS settings' visibility_condition='"%s" != "Energy calculation"' visibility_var_path='SP calculation'>
+			<WaNoInt name='Gridpoints'>2001</WaNoInt>
+			<WaNoBool name='Calculate lm-decomposed DOS'>False</WaNoBool>
+			<WaNoBool name='Default energy range'>True</WaNoBool>
+			<WaNoFloat name='Lower energy limit [eV]' visibility_condition='%s == False' visibility_var_path='DOS settings.Default energy range'>0</WaNoFloat>
+			<WaNoFloat name='Upper energy limit [eV]' visibility_condition='%s == False' visibility_var_path='DOS settings.Default energy range'>20</WaNoFloat>
+		</WaNoDictBox>
+		<WaNoDictBox name = 'Band structure settings' visibility_condition='"%s" == "Band structure calculation"' visibility_var_path='SP calculation'>
+			<WaNoBool name='Non-SC calculation' visibility_condition='"%s" != "Hybrid"' visibility_var_path='Electronic structure settings.Type of functional'>False</WaNoBool>
+			<WaNoInviBox name='Non-SC' visibility_condition='%s == True' visibility_var_path='Band structure settings.Non-SC calculation'>
+				<WaNoFile name='Load CHGCAR' logical_filename='CHGCAR'>CHGCAR</WaNoFile>
+				<WaNoBool name='Auto-generate k-path'>True</WaNoBool>
+				<WaNoFile name='Load KPOINTS' logical_filename='KPOINTS_bs' visibility_condition='%s == False' visibility_var_path='Band structure settings.Non-SC.Auto-generate k-path'>KPOINTS_line</WaNoFile>
+			</WaNoInviBox>
+			<WaNoInviBox name='0-weight k-points' visibility_condition='%s == False' visibility_var_path='Band structure settings.Non-SC calculation'>
+				<WaNoFile name='Load IBZKPT' logical_filename='IBZKPT'>IBZKPT</WaNoFile>
+				<WaNoBool name='Auto-generate k-points'>True</WaNoBool>
+				<WaNoFile name='Load 0-weight k-points' logical_filename='KPOINTS_0weight' visibility_condition='%s == False' visibility_var_path='Band structure settings.0-weight k-points.Auto-generate k-points'>KPOINTS_0w</WaNoFile>
+			</WaNoInviBox>
+		</WaNoDictBox>
+		<WaNoDictBox name='Structure optimisation' visibility_condition='"%s" == "Structure optimisation"' visibility_var_path='Type of calculation'>
+			<WaNoDropDown name='Optimisation algorithm'>
+				<Entry id='0' chosen='True'>RMM-DIIS</Entry>
+				<Entry id='1'>Conjugate gradient</Entry>
+				<Entry id='2'>Damped MD</Entry>
+			</WaNoDropDown>
+			<WaNoFloat name='Damping factor' visibility_condition='"%s" == "Damped MD"' visibility_var_path='Structure optimisation.Optimisation algorithm'>-1</WaNoFloat>
+			<WaNoFloat name='Time step [fs]' visibility_condition='"%s" == "Damped MD"' visibility_var_path='Structure optimisation.Optimisation algorithm'>0.5</WaNoFloat>
+			<WaNoFloat name='Step width scaling constant' visibility_condition='"%s" == "RMM-DIIS"' visibility_var_path='Structure optimisation.Optimisation algorithm'>0.5</WaNoFloat>
+			<WaNoInt name='Maximum optimisation steps'>500</WaNoInt>
+			<WaNoBool name='Default convergence criteria'>True</WaNoBool>
+			<WaNoFloat name='EDIFFG' visibility_condition='%s == False' visibility_var_path='Structure optimisation.Default convergence criteria'>0.0001</WaNoFloat>
+			<WaNoBool name='Optimise cell parameters'>False</WaNoBool>
+			<WaNoDropDown name='Calculate stress tensor' visibility_condition='%s == False' visibility_var_path='Structure optimisation.Optimise cell parameters'>
+				<Entry id='0'>No</Entry>
+				<Entry id='1'>Trace only</Entry>
+				<Entry id='2' chosen='True'>Yes</Entry>
+			</WaNoDropDown>
+		</WaNoDictBox>
+		<WaNoDictBox name='NEB settings' visibility_condition='"%s" == "NEB calculation"' visibility_var_path='Type of calculation'>
+			<WaNoDropDown name='Image selection'>
+				<Entry id='0' chosen='True'>Interpolate between two images</Entry>
+				<Entry id='1'>Load images from tar file</Entry>
+			</WaNoDropDown>
+			<WaNoInviBox name='Image interpolation' visibility_condition='"%s" == "Interpolate between two images"' visibility_var_path='NEB settings.Image selection'>
+				<WaNoFile name='Initial structure' logical_filename='POSCAR_init'>POSCAR_init</WaNoFile>
+				<WaNoFile name='Final structure' logical_filename='POSCAR_final'>POSCAR_final</WaNoFile>
+				<WaNoInt name='Number of images'>3</WaNoInt>
+			</WaNoInviBox>
+			<WaNoFile name='Images tar file' logical_filename='images.tar.xz' visibility_condition='"%s" == "Load images from tar file"' visibility_var_path='NEB settings.Image selection'>Images.tar.xz</WaNoFile>
+			<WaNoDropDown name='Optimisation algorithm'>
+				<Entry id='0' chosen='True'>RMM-DIIS</Entry>
+				<Entry id='1'>Conjugate gradient</Entry>
+				<Entry id='2'>Damped MD</Entry>
+			</WaNoDropDown>
+			<WaNoFloat name='Damping factor' visibility_condition='"%s" == "Damped MD"' visibility_var_path='NEB settings.Optimisation algorithm'>-1</WaNoFloat>
+			<WaNoFloat name='Time step [fs]' visibility_condition='"%s" == "Damped MD"' visibility_var_path='NEB settings.Optimisation algorithm'>0.5</WaNoFloat>
+			<WaNoFloat name='Step width scaling constant' visibility_condition='"%s" == "RMM-DIIS"' visibility_var_path='NEB settings.Optimisation algorithm'>0.5</WaNoFloat>
+			<WaNoInt name='Maximum optimisation steps'>500</WaNoInt>
+			<WaNoBool name='Default convergence criteria'>True</WaNoBool>
+			<WaNoFloat name='EDIFFG' visibility_condition='%s == False' visibility_var_path='NEB settings.Default convergence criteria'>0.0001</WaNoFloat>
+			<WaNoBool name='Optimise cell parameters'>False</WaNoBool>
+			<WaNoDropDown name='Calculate stress tensor' visibility_condition='%s == False' visibility_var_path='NEB settings.Optimise cell parameters'>
+				<Entry id='0'>No</Entry>
+				<Entry id='1'>Trace only</Entry>
+				<Entry id='2' chosen='True'>Yes</Entry>
+			</WaNoDropDown>
+			<WaNoBool name='Constant cell volume' visibility_condition='%s == True' visibility_var_path='NEB settings.Optimise cell parameters'>False</WaNoBool>
+		</WaNoDictBox>
+		<WaNoDictBox name='MD settings' visibility_condition='"%s" == "MD calculation"' visibility_var_path='Type of calculation'>
+			<WaNoDropDown name='Ensemble'>
+				<Entry id='0'>NVE</Entry>
+				<Entry id='1' chosen='True'>NVT</Entry>
+			</WaNoDropDown>
+			<WaNoDropDown name='Thermostat' visibility_condition='"%s" == "NVT"' visibility_var_path='MD settings.Ensemble'>
+				<Entry id='0'>Andersen</Entry>
+				<Entry id='1' chosen = 'True'>Nosé-Hoover</Entry>
+				<Entry id='2'>Langevin</Entry>
+				<Entry id='3'>Multiple Andersen</Entry>
+			</WaNoDropDown>
+			<WaNoFloat name='Temperature [K]'>300.00</WaNoFloat>
+			<WaNoBool name='Temperature gradient'>False</WaNoBool>
+			<WaNoFloat name='Final temperature [K]' visibility_condition='%s == True' visibility_var_path='MD settings.Temperature gradient'>300.00</WaNoFloat>
+			<WaNoFloat name='Time step [fs]'>0.5</WaNoFloat>
+			<WaNoInt name='Number of steps'>100</WaNoInt>
+			<WaNoBool name='Save snapshots'>True</WaNoBool>
+			<WaNoInt name='Snapshot after n steps' visibility_condition='%s == True' visibility_var_path='MD settings.Save snapshots'>10</WaNoInt>
+		</WaNoDictBox>
+		<WaNoDictBox name='Output files'>
+			<WaNoBool name='Keep CHGCAR'>False</WaNoBool>
+			<WaNoBool name='Keep WAVECAR'>False</WaNoBool>
+		</WaNoDictBox>
+	</WaNoRoot>
+	
+	<WaNoExecCommand>
+	export NANOVER=V4
+	source $NANOMATCH/$NANOVER/local_anaconda/bin/activate
+	conda activate simstack_kit
+	export VASP_VER={{- wano['VASP version'] }}
+	source $NANOMATCH/$NANOVER/configs/vasp.config  
+	python run_vasp.py
+	</WaNoExecCommand>
+	
+	<WaNoInputFiles>
+		<WaNoInputFile logical_filename="run_vasp.py">run_vasp.py</WaNoInputFile>
+	</WaNoInputFiles>
+	
+	<WaNoOutputFiles>
+		<WaNoOutputFile>CHGCAR</WaNoOutputFile>
+		<WaNoOutputFile>CONTCAR</WaNoOutputFile>
+		<WaNoOutputFile>IBZKPT</WaNoOutputFile>
+		<WaNoOutputFile>WAVECAR</WaNoOutputFile>
+		<WaNoOutputFile>output_dict.yml</WaNoOutputFile>
+		<WaNoOutputFile>results.tar.xz</WaNoOutputFile>
+	</WaNoOutputFiles>
+</WaNoTemplate>
