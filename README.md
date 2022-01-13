@@ -1,5 +1,4 @@
-# DFT-Turbomole
-
+# DFT-VASP-Advanced
 ## Description
 
 This WaNo allows the users to perform periodic DFT calculations using the [VASP](https://www.vasp.at/) code without requiring a deep understanding of VASP's functionalities and input files. The user can choose between single point calculations, structure optimisations, ab-initio MD and NEB calculations. Electronic DOS and band structure calculations are also possible, for which it is recommended to use this WaNo several times in a corresponding workflow. The mandatory input of this WaNo consists only of a structure file in POSCAR format (except for NEB calculations), and all other input files can be created automatically. 
